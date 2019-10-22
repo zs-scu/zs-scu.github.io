@@ -1,0 +1,1113 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="generator" content="Hugo 0.58.3 with theme Tranquilpeak 0.4.7-BETA">
+<meta name="author" content="张 森">
+<meta name="keywords" content="">
+<meta name="description" content="1. Ambari的介绍 1.1 介绍 ​ 对于刚入门的萌新来说，在伪分布式环境下安装Hadoop平台以及Hadoop各种插件（比如：HIVE，HBase等），十分复杂且容易出错。因为各种插件配置文件一大堆，稍不注意就出错，且不方便管理。因此最后选择用Ambari安装与管理Hadoop。
+​ Ambari 跟 Hadoop 等开源软件一样，也是 Apache Software Foundation 中的一个项目，并且是顶级项目。2018年11月为止最新的发布版本是 2.7.3。就 Ambari 的作用来说，就是创建、管理、监视 Hadoop 的集群，但是这里的 Hadoop 是广义，指的是 Hadoop 整个生态圈（例如 Hive，Hbase，Sqoop，Zookeeper 等），而并不仅是特指 Hadoop。用一句话来说，Ambari 就是为了让 Hadoop 以及相关的大数据软件更容易使用的一个工具。
+​ Ambari是一种基于Web的工具，支持Apache Hadoop集群的供应、管理和监控 。目前Ambari支持HDFS、MapReduce、Hive、Pig、Hbase、Zookeepr、Sqoop和Hcatalog等的集中管理。
+1.2 原理及架构 ​ Ambari 自身也是一个分布式架构的软件，主要由两部分组成：Ambari Server 和 Ambari Agent。简单来说，用户通过 Ambari Server 通知 Ambari Agent 安装对应的软件；Agent 会定时地发送各个机器每个软件模块的状态给 Ambari Server，最终这些状态信息会呈现在 Ambari 的 GUI，方便用户了解到集群的各种状态，并进行相应的维护。
+​ 本文分布式架构如下图所示，我用了3台虚拟机。
+ master节点是hadoop的主节点，安装Ambari server服务。
+ data1是从节点，安装Ambari agent 服务。
+ data2也是丛节点，安装Ambari agent服务。
+  2.">
+
+
+<meta property="og:description" content="1. Ambari的介绍 1.1 介绍 ​ 对于刚入门的萌新来说，在伪分布式环境下安装Hadoop平台以及Hadoop各种插件（比如：HIVE，HBase等），十分复杂且容易出错。因为各种插件配置文件一大堆，稍不注意就出错，且不方便管理。因此最后选择用Ambari安装与管理Hadoop。
+​ Ambari 跟 Hadoop 等开源软件一样，也是 Apache Software Foundation 中的一个项目，并且是顶级项目。2018年11月为止最新的发布版本是 2.7.3。就 Ambari 的作用来说，就是创建、管理、监视 Hadoop 的集群，但是这里的 Hadoop 是广义，指的是 Hadoop 整个生态圈（例如 Hive，Hbase，Sqoop，Zookeeper 等），而并不仅是特指 Hadoop。用一句话来说，Ambari 就是为了让 Hadoop 以及相关的大数据软件更容易使用的一个工具。
+​ Ambari是一种基于Web的工具，支持Apache Hadoop集群的供应、管理和监控 。目前Ambari支持HDFS、MapReduce、Hive、Pig、Hbase、Zookeepr、Sqoop和Hcatalog等的集中管理。
+1.2 原理及架构 ​ Ambari 自身也是一个分布式架构的软件，主要由两部分组成：Ambari Server 和 Ambari Agent。简单来说，用户通过 Ambari Server 通知 Ambari Agent 安装对应的软件；Agent 会定时地发送各个机器每个软件模块的状态给 Ambari Server，最终这些状态信息会呈现在 Ambari 的 GUI，方便用户了解到集群的各种状态，并进行相应的维护。
+​ 本文分布式架构如下图所示，我用了3台虚拟机。
+ master节点是hadoop的主节点，安装Ambari server服务。
+ data1是从节点，安装Ambari agent 服务。
+ data2也是丛节点，安装Ambari agent服务。
+  2.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Ambari的安装">
+<meta name="twitter:title" content="Ambari的安装">
+<meta property="og:url" content="https://zs-scu.github.io/2019/10/ambari%E7%9A%84%E5%AE%89%E8%A3%85/">
+<meta property="twitter:url" content="https://zs-scu.github.io/2019/10/ambari%E7%9A%84%E5%AE%89%E8%A3%85/">
+<meta property="og:site_name" content="zs-scu blog">
+<meta property="og:description" content="1. Ambari的介绍 1.1 介绍 ​ 对于刚入门的萌新来说，在伪分布式环境下安装Hadoop平台以及Hadoop各种插件（比如：HIVE，HBase等），十分复杂且容易出错。因为各种插件配置文件一大堆，稍不注意就出错，且不方便管理。因此最后选择用Ambari安装与管理Hadoop。
+​ Ambari 跟 Hadoop 等开源软件一样，也是 Apache Software Foundation 中的一个项目，并且是顶级项目。2018年11月为止最新的发布版本是 2.7.3。就 Ambari 的作用来说，就是创建、管理、监视 Hadoop 的集群，但是这里的 Hadoop 是广义，指的是 Hadoop 整个生态圈（例如 Hive，Hbase，Sqoop，Zookeeper 等），而并不仅是特指 Hadoop。用一句话来说，Ambari 就是为了让 Hadoop 以及相关的大数据软件更容易使用的一个工具。
+​ Ambari是一种基于Web的工具，支持Apache Hadoop集群的供应、管理和监控 。目前Ambari支持HDFS、MapReduce、Hive、Pig、Hbase、Zookeepr、Sqoop和Hcatalog等的集中管理。
+1.2 原理及架构 ​ Ambari 自身也是一个分布式架构的软件，主要由两部分组成：Ambari Server 和 Ambari Agent。简单来说，用户通过 Ambari Server 通知 Ambari Agent 安装对应的软件；Agent 会定时地发送各个机器每个软件模块的状态给 Ambari Server，最终这些状态信息会呈现在 Ambari 的 GUI，方便用户了解到集群的各种状态，并进行相应的维护。
+​ 本文分布式架构如下图所示，我用了3台虚拟机。
+ master节点是hadoop的主节点，安装Ambari server服务。
+ data1是从节点，安装Ambari agent 服务。
+ data2也是丛节点，安装Ambari agent服务。
+  2.">
+<meta name="twitter:description" content="1. Ambari的介绍 1.1 介绍 ​ 对于刚入门的萌新来说，在伪分布式环境下安装Hadoop平台以及Hadoop各种插件（比如：HIVE，HBase等），十分复杂且容易出错。因为各种插件配置文件一大堆，稍不注意就出错，且不方便管理。因此最后选择用Ambari安装与管理Hadoop。
+​ Ambari 跟 Hadoop 等开源软件一样，也是 Apache Software Foundation 中的一个项目，并且是顶级项目。2018年11月为止最新的发布版本是 2.7.3。就 Ambari 的作用来说，就是创建、管理、监视 Hadoop 的集群，但是这里的 Hadoop 是广义，指的是 Hadoop 整个生态圈（例如 Hive，Hbase，Sqoop，Zookeeper 等），而并不仅是特指 Hadoop。用一句话来说，Ambari 就是为了让 Hadoop 以及相关的大数据软件更容易使用的一个工具。
+​ Ambari是一种基于Web的工具，支持Apache Hadoop集群的供应、管理和监控 。目前Ambari支持HDFS、MapReduce、Hive、Pig、Hbase、Zookeepr、Sqoop和Hcatalog等的集中管理。
+1.2 原理及架构 ​ Ambari 自身也是一个分布式架构的软件，主要由两部分组成：Ambari Server 和 Ambari Agent。简单来说，用户通过 Ambari Server 通知 Ambari Agent 安装对应的软件；Agent 会定时地发送各个机器每个软件模块的状态给 Ambari Server，最终这些状态信息会呈现在 Ambari 的 GUI，方便用户了解到集群的各种状态，并进行相应的维护。
+​ 本文分布式架构如下图所示，我用了3台虚拟机。
+ master节点是hadoop的主节点，安装Ambari server服务。
+ data1是从节点，安装Ambari agent 服务。
+ data2也是丛节点，安装Ambari agent服务。
+  2.">
+<meta property="og:locale" content="en-us">
+
+  
+    <meta property="article:published_time" content="2019-10-21T13:11:27">
+  
+  
+    <meta property="article:modified_time" content="2019-10-21T13:11:27">
+  
+  
+  
+    
+      <meta property="article:section" content="大数据">
+    
+  
+  
+    
+      <meta property="article:tag" content="大数据">
+    
+  
+
+
+<meta name="twitter:card" content="summary">
+
+
+
+
+
+
+
+
+
+
+
+  <meta property="og:image" content="https://www.gravatar.com/avatar/d09dc2d7aa5c467519e8af89f7b3d94c?s=640">
+  <meta property="twitter:image" content="https://www.gravatar.com/avatar/d09dc2d7aa5c467519e8af89f7b3d94c?s=640">
+
+
+    <title>Ambari的安装</title>
+
+    <link rel="icon" href="https://zs-scu.github.io/favicon.png">
+    
+
+    
+
+    <link rel="canonical" href="https://zs-scu.github.io/2019/10/ambari%E7%9A%84%E5%AE%89%E8%A3%85/">
+
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/jquery.fancybox.min.css" integrity="sha256-vuXZ9LGmmwtjqFX1F+EKin1ThZMub58gKULUyf0qECk=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.4/helpers/jquery.fancybox-thumbs.min.css" integrity="sha256-SEa4XYAHihTcEP1f5gARTB2K26Uk8PsndQYHQC1f4jU=" crossorigin="anonymous" />
+    
+    
+    <link rel="stylesheet" href="https://zs-scu.github.io/css/style-twzjdbqhmnnacqs0pwwdzcdbt8yhv8giawvjqjmyfoqnvazl0dalmnhdkvp7.min.css" />
+    
+    
+
+    
+      
+    
+    
+  </head>
+
+  <body>
+    <div id="blog">
+      <header id="header" data-behavior="4">
+  <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+  <div class="header-title">
+    <a class="header-title-link" href="https://zs-scu.github.io/">zs-scu blog</a>
+  </div>
+  
+    
+      <a class="header-right-picture "
+         href="https://zs-scu.github.io/#about">
+    
+    
+    
+      
+        <img class="header-picture" src="https://www.gravatar.com/avatar/d09dc2d7aa5c467519e8af89f7b3d94c?s=90" alt="Author&#39;s picture" />
+      
+    
+    </a>
+  
+</header>
+
+      <nav id="sidebar" data-behavior="4">
+  <div class="sidebar-container">
+    
+      <div class="sidebar-profile">
+        <a href="https://zs-scu.github.io/#about">
+          <img class="sidebar-profile-picture" src="https://www.gravatar.com/avatar/d09dc2d7aa5c467519e8af89f7b3d94c?s=110" alt="Author&#39;s picture" />
+        </a>
+        <h4 class="sidebar-profile-name">张 森</h4>
+        
+          <h5 class="sidebar-profile-bio">The very things that in the moment dampen our moods can later be sources of intense gratification and delight.</h5>
+        
+      </div>
+    
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://zs-scu.github.io/">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+      
+      <span class="sidebar-button-desc">Home</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://zs-scu.github.io/categories">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+      
+      <span class="sidebar-button-desc">Categories</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://zs-scu.github.io/tags">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+      
+      <span class="sidebar-button-desc">Tags</span>
+    </a>
+  </li>
+
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://zs-scu.github.io/#about">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+      
+      <span class="sidebar-button-desc">About</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+  <li class="sidebar-button">
+    
+      <a class="sidebar-button-link " href="https://github.com/zs-scu" target="_blank" rel="noopener">
+    
+      <i class="sidebar-button-icon fa fa-lg fa-github"></i>
+      
+      <span class="sidebar-button-desc">GitHub</span>
+    </a>
+  </li>
+
+
+    </ul>
+    <ul class="sidebar-buttons">
+      
+
+    </ul>
+  </div>
+</nav>
+
+      
+
+      <div id="main" data-behavior="4"
+        class="
+               hasCoverMetaIn
+               ">
+        <article class="post" itemscope itemType="http://schema.org/BlogPosting">
+          
+          
+            <div class="post-header main-content-wrap text-left">
+  
+    <h1 class="post-title" itemprop="headline">
+      Ambari的安装
+    </h1>
+  
+  
+  <div class="postShorten-meta post-meta">
+    
+      <time itemprop="datePublished" datetime="2019-10-21T13:11:27&#43;08:00">
+        
+  October 21, 2019
+
+      </time>
+    
+    
+  
+  
+    <span>in</span>
+    
+      <a class="category-link" href="https://zs-scu.github.io/categories/%e5%a4%a7%e6%95%b0%e6%8d%ae">大数据</a>
+    
+  
+
+  </div>
+
+</div>
+          
+          <div class="post-content markdown" itemprop="articleBody">
+            <div class="main-content-wrap">
+              
+
+<h1 id="table-of-contents">Table of Contents</h1><nav id="TableOfContents">
+<ul>
+<li><a href="#1-ambari的介绍">1. Ambari的介绍</a>
+<ul>
+<li><a href="#1-1-介绍">1.1 介绍</a></li>
+<li><a href="#1-2-原理及架构">1.2 原理及架构</a></li>
+</ul></li>
+<li><a href="#2-ambari安装准备工作">2. Ambari安装准备工作</a>
+<ul>
+<li><a href="#2-1-安装环境及工具">2.1 安装环境及工具</a></li>
+<li><a href="#2-2-集群节点配置说明">2.2 集群节点配置说明</a></li>
+</ul></li>
+<li><a href="#3-maser节点配置">3. maser节点配置</a>
+<ul>
+<li><a href="#3-1-安装master节点虚拟机">3.1 安装master节点虚拟机</a></li>
+<li><a href="#3-2-配置java环境">3.2 配置Java环境</a></li>
+<li><a href="#3-3-添加hosts及hostname">3.3 添加hosts及hostname</a></li>
+<li><a href="#3-4-关闭防火墙">3.4 关闭防火墙</a></li>
+<li><a href="#3-4-虚拟机克隆">3.4 虚拟机克隆</a></li>
+<li><a href="#3-5-配置ssh">3.5 配置SSH</a></li>
+<li><a href="#3-6-安装mariadb数据库">3.6 安装mariadb数据库</a></li>
+<li><a href="#3-6-配置ambari和hdp本地源">3.6 配置Ambari和HDP本地源</a></li>
+<li><a href="#3-7-安装ambari-server服务">3.7 安装Ambari server服务</a></li>
+</ul></li>
+<li><a href="#4-data1与data2节点配置">4. data1与data2节点配置</a></li>
+<li><a href="#5-安装hadoop环境及服务">5.安装Hadoop环境及服务</a></li>
+</ul>
+</nav>
+
+<h1 id="1-ambari的介绍">1. Ambari的介绍</h1>
+
+<h2 id="1-1-介绍">1.1 介绍</h2>
+
+<p>​   对于刚入门的萌新来说，在伪分布式环境下安装Hadoop平台以及Hadoop各种插件（比如：HIVE，HBase等），十分复杂且容易出错。因为各种插件配置文件一大堆，稍不注意就出错，且不方便管理。因此最后选择用Ambari安装与管理Hadoop。</p>
+
+<p>​   Ambari 跟 Hadoop 等开源软件一样，也是 Apache Software Foundation 中的一个项目，并且是顶级项目。2018年11月为止最新的发布版本是 2.7.3。就 Ambari 的作用来说，就是创建、管理、监视 Hadoop 的集群，但是这里的 Hadoop 是广义，指的是 Hadoop 整个生态圈（例如 Hive，Hbase，Sqoop，Zookeeper 等），而并不仅是特指 Hadoop。用一句话来说，Ambari 就是为了让 Hadoop 以及相关的大数据软件更容易使用的一个工具。</p>
+
+<p>​    Ambari是一种基于Web的工具，支持Apache Hadoop集群的供应、管理和监控 。目前Ambari支持HDFS、MapReduce、Hive、Pig、Hbase、Zookeepr、Sqoop和Hcatalog等的集中管理。</p>
+
+<h2 id="1-2-原理及架构">1.2 原理及架构</h2>
+
+<p>​   Ambari 自身也是一个分布式架构的软件，主要由两部分组成：Ambari Server 和 Ambari Agent。简单来说，用户通过 Ambari Server 通知 Ambari Agent 安装对应的软件；Agent 会定时地发送各个机器每个软件模块的状态给 Ambari Server，最终这些状态信息会呈现在 Ambari 的 GUI，方便用户了解到集群的各种状态，并进行相应的维护。</p>
+
+<p>​   本文分布式架构如下图所示，我用了3台虚拟机。</p>
+
+<ol>
+<li><p>master节点是hadoop的主节点，安装Ambari server服务。</p></li>
+
+<li><p>data1是从节点，安装Ambari agent 服务。</p></li>
+
+<li><p>data2也是丛节点，安装Ambari agent服务。</p></li>
+</ol>
+
+<p><img src="https://zs-scu.github.io/images/ambari.PNG" alt="ambari" style="zoom:80%;" /></p>
+
+<h1 id="2-ambari安装准备工作">2. Ambari安装准备工作</h1>
+
+<h2 id="2-1-安装环境及工具">2.1 安装环境及工具</h2>
+
+<p>本文采用虚拟机方式实现Ambari安装。</p>
+
+<p>安装Ambari时，需要先下载HDP，HDP是hortonworks的软件栈，里面包含了hadoop生态系统的所有软件项目，比如HBase,Zookeeper,Hive,Pig等等。</p>
+
+<p>值得一提的是，Ambari支持在线安装hadoop各种软件，但是软件一般来说很大且在线安装很慢，因此本门采用的方式是先下载HDP到本地，再将HDP做成本地源，此时安装会更加快速。</p>
+
+<ul>
+<li>虚拟机操作系统：Centos 7</li>
+<li>Ambari版本：2.7.3</li>
+<li>HDP版本：3.1.0</li>
+<li>mariadb</li>
+</ul>
+
+<p>如需要安装其他版本的Ambari，可以参考此链接： <a href="https://supportmatrix.hortonworks.com/">https://supportmatrix.hortonworks.com/</a></p>
+
+<ul>
+<li>Ambari 2.7.3安装包下载地址：  <a href="https://docs.cloudera.com/HDPDocuments/Ambari-2.7.3.0/bk_ambari-installation/content/ambari_repositories.html">https://docs.cloudera.com/HDPDocuments/Ambari-2.7.3.0/bk_ambari-installation/content/ambari_repositories.html</a></li>
+<li>HDP 3.1.0.0、HDP-GPL-3.1.0.0 和 HDP-UTILS 1.1.0.22安装包下载地址：<a href="https://docs.hortonworks.com/HDPDocuments/Ambari-2.7.3.0/bk_ambari-installation/content/hdp_31_repositories.html">https://docs.hortonworks.com/HDPDocuments/Ambari-2.7.3.0/bk_ambari-installation/content/hdp_31_repositories.html</a></li>
+</ul>
+
+<p>注意：Ambari和HDP需要所对应操作系统，如果操作系统不匹配则可能会导致后面安装失败。比如都源于Red Hat系的Fedora系统，如果下载Centos的Ambari和HDP则不会安装成功。</p>
+
+<h2 id="2-2-集群节点配置说明">2.2 集群节点配置说明</h2>
+
+<p><img src="https://zs-scu.github.io/images/ambari2.PNG" alt="ambari2" /></p>
+
+<h1 id="3-maser节点配置">3. maser节点配置</h1>
+
+<h2 id="3-1-安装master节点虚拟机">3.1 安装master节点虚拟机</h2>
+
+<p>本文采用Virtual Box安装虚拟机，如果对VMwear熟悉也可用VMwear安装。</p>
+
+<p>网上关于Virtual Box安装Centos虚拟机已有很多资料，本文不再赘述，只是提醒几个应该注意的地方（针对Virtual Box）：</p>
+
+<ol>
+<li><p>网络连接记得设置成桥接方式，以便后面集群之间的通信。</p></li>
+
+<li><p>Centos安装成功后在Virtual Box中不能全屏，操作很是不方便。解决方法：先弹出本地的DVD碟片（不弹出会报错），然后点击Virtual Box左上方&rdquo;设备&rdquo;- &gt;&ldquo;安装增强功能&rdquo;，此时系统会弹出一条安装VBoxLinuxAdditions的通知，点击运行。第一次安装不会成功，他会提示找不到内核头。输入下面2条命名更新内核，且编译内核头，完成后重启立马全屏。</p>
+
+<pre><code>yum update kernel -y
+yum install kernel-headers kernel-devel gcc make -y
+</code></pre></li>
+
+<li><p>Centos开机默认是没有联网，为了方便可以修改系统的配置文件，让Centos开机后自动联网。</p>
+
+<pre><code>vi /etc/sysconfig/network-scripts/ifcfg-enp0s3
+   
+将ONBOOT项改为yes
+</code></pre></li>
+
+<li><p>本文为了方便，所有操作均在root用户下进行。</p></li>
+</ol>
+
+<h2 id="3-2-配置java环境">3.2 配置Java环境</h2>
+
+<p>Centos 7本身自带了Java环境，但是为了后面配置方便重新安装java环境。本文采用的Java版本是1.8.0_221。安装具体步骤：</p>
+
+<ol>
+<li><p>下载”jdk-8u221-linux-x64.tar.gz“的安装包，解压并重命名文件为：jdk1.8.0</p></li>
+
+<li><p>将文件夹copy到    /usr/lib/jvm/   目录下，命令如下：</p>
+
+<pre><code>cp -r jdk1.8.0 /usr/lib/jvm/
+</code></pre></li>
+
+<li><p>修改bashrc文件，将Java环境变量添加到bashrc中</p>
+
+<pre><code>打开bashrc文件：
+vi ~/.bashrc
+   
+添加环境变量到bashrc：
+export JAVA_HOME=/usr/lib/jvm/jdk1.8.0
+export PATH=$PATH:$JAVA_HOME/bin
+   
+让环境变量生效：
+source ~/.bashrc
+   
+查看java版本：
+java -version
+</code></pre></li>
+</ol>
+
+<p>输出：</p>
+
+<p>java version &ldquo;1.8.0_221&rdquo;</p>
+
+<p>Java&trade; SE Runtime Environment (build 1.8.0_221-b11)</p>
+
+<p>Java HotSpot&trade; 64-Bit Server VM (build 25.221-b11, mixed mode)</p>
+
+<p>则表示安装成功。</p>
+
+<h2 id="3-3-添加hosts及hostname">3.3 添加hosts及hostname</h2>
+
+<p>为了配置以及集群的管理的便利，我们添加主机名到hosts文件中。</p>
+
+<ol>
+<li><p>添加ip到主机名的映射：</p>
+
+<pre><code>vi /etc/hosts
+    
+添加映射到hosts文件中：
+172.16.11.63 master
+172.16.11.66 data1
+172.16.11.67 data2
+</code></pre></li>
+
+<li><p>修改hostname：</p>
+
+<pre><code>vi /etc/sysconfig/network
+   
+添加以下内容：
+NETWORKING=yes
+HOSITNAME=master
+   
+使hostname的改动马上生效：
+hostnamectl set-hostname master
+   
+输入命令验证是否成功：
+hostname
+</code></pre></li>
+</ol>
+
+<h2 id="3-4-关闭防火墙">3.4 关闭防火墙</h2>
+
+<p>为了防止拒绝连接等网络错误，先提前关闭虚拟机的防火墙。</p>
+
+<ol>
+<li><p>关闭防火墙</p>
+
+<pre><code>systemctl status firewalld.service
+</code></pre></li>
+
+<li><p>设置开机不启动防火墙</p>
+
+<pre><code>systemctl disable firewalld.service 
+</code></pre></li>
+</ol>
+
+<h2 id="3-4-虚拟机克隆">3.4 虚拟机克隆</h2>
+
+<p>接下来就是克隆出data1和data2节点，前面几个步骤都是几个节点都需要配置的内容，因此我提前在master节点配置好，然后直接克隆则就不需要再在其他节点重复配置。克隆在Virtual Box很简单：</p>
+
+<ol>
+<li>在Virtual Box管理器中右键点击master节点，再点击复制。</li>
+<li>将名字改为data1或data2，直接下一步即可。</li>
+</ol>
+
+<p>注意：不要忘记把网络设置成桥接模式。</p>
+
+<h2 id="3-5-配置ssh">3.5 配置SSH</h2>
+
+<p>为了master节点和各个data节点通信，需要设置master到data1，data2的ssh免密登录。</p>
+
+<p>Centos默认已经安装SSH服务，如果没有则需要另外安装。3个主机都需要安装</p>
+
+<pre><code>yum install openssh-server   安装ssh服务
+systemctl start sshd         开启ssh服务
+systemctl enable sshd        开机自启动ssh服务
+</code></pre>
+
+<p>原理：A需要免密登录B，则需要把A的公钥发送给B。因此，master需要免密登录data1和data2，则需要将master的公钥发送给data1和data2</p>
+
+<p>具体过程如下:</p>
+
+<ol>
+<li><p>在master节点产生公钥，具体命令</p>
+
+<pre><code>ssh-keygen -t rsa
+</code></pre></li>
+</ol>
+
+<p>一直回车就行了。</p>
+
+<ol>
+<li><p>将master公钥分发给data1和data2</p>
+
+<pre><code>ssh-copy-id data1
+ssh-copy-id data2
+</code></pre></li>
+</ol>
+
+<p>ssh-copy-id命令完成的任务就是把master公钥追加到data节点下的authorized_keys文件中，以完成授权。</p>
+
+<h2 id="3-6-安装mariadb数据库">3.6 安装mariadb数据库</h2>
+
+<p>由于centos的yum没有mysql，所以我们选择安装和mysql基本一致的mariadb。</p>
+
+<ol>
+<li><p>安装maridb：</p>
+
+<pre><code>yum -y install mariadb mariadb-server 
+</code></pre></li>
+
+<li><p>启动mariadb数据库服务，并设置开机启动服务：</p>
+
+<pre><code>systemctl start mariadb
+systemctl enable mariadb
+</code></pre></li>
+
+<li><p>初始化mariadb，进行相关配置</p>
+
+<pre><code>mysql_secure_installation
+</code></pre>
+
+<ul>
+<li>输入密码：直接回车</li>
+<li>设置root密码：（本文设置为“root”）</li>
+<li>是否删除匿名用户：直接回车</li>
+<li>是否禁止root远程登陆：直接回车</li>
+<li>是否删除test数据库：直接回车</li>
+<li>是否加载权限表：直接回车</li>
+</ul></li>
+
+<li><p>创建一个ambari和hive数据库</p>
+
+<pre><code>mysql -uroot -proot
+create database ambari character set utf8; 
+create database hive character set utf8;
+</code></pre></li>
+</ol>
+
+<p>为了方便起见，创建数据库之后没有在创建相应的用户，而是直接使用的是数据库的root用户。</p>
+
+<p>查看是否创建成功？</p>
+
+<pre><code>   show databases;
+</code></pre>
+
+<p><img src="https://zs-scu.github.io/images/ambari3.PNG" alt="ambari3"  /></p>
+
+<ol>
+<li><p>下载mariadb的JDBC驱动</p>
+
+<pre><code>yum install mysql-connector-java
+</code></pre></li>
+</ol>
+
+<p>在/usr/share/java目录下查看是否有mysql-connector-java.jar驱动</p>
+
+<h2 id="3-6-配置ambari和hdp本地源">3.6 配置Ambari和HDP本地源</h2>
+
+<p>为了后面安装Ambari和HDP更快我们选择配置本地源，以加速我们安装过程。</p>
+
+<p>由于要配置本地源，我们首先得搭建一个文件服务器给源提供镜像文件，这里我们采用Apache httpd服务，centos7默认安装了httpd服务，如果没有安装，则先安装服务。</p>
+
+<ol>
+<li><p>安装httpd服务（安装了则跳过该步骤）</p>
+
+<pre><code>yum install httpd -y
+</code></pre></li>
+
+<li><p>启动服务，设置开机自动启动</p>
+
+<pre><code>systemctl start httpd
+systemctl enable httpd
+</code></pre></li>
+
+<li><p>在/var/www/html/目录下创建ambari和hdp文件夹</p>
+
+<pre><code>mkdir /var/www/html/ambari
+mkdir /var/www/html/hdp
+</code></pre></li>
+
+<li><p>转到你下载好的Ambari和HDP压缩包目录中，新建一个终端将2个压缩包解压到刚才创建的目录中</p>
+
+<pre><code>tar -zxvf ambari-2.7.3.0-centos7.tar.gz -C /var/www/html/ambari/
+tar -zxvf HDP-3.1.0.0-centos7-rpm.tar.gz -C /var/www/html/hdp/
+tar -zxvf HDP-UTILS-1.1.0.22-centos7.tar.gz -C /var/www/html/hdp/HDP-UTILS-1.1.0.22/
+</code></pre></li>
+
+<li><p>重启httpd服务</p>
+
+<pre><code>systemctl restart httpd
+</code></pre></li>
+
+<li><p>进入浏览器界面访问172.16.11.63，查看是搭建否成功</p></li>
+</ol>
+
+<p><img src="https://zs-scu.github.io/images/ambari4.PNG" alt="ambari4" /></p>
+
+<p><img src="https://zs-scu.github.io/images/ambari7.PNG" alt="ambari7" /></p>
+
+<p>接下来就是配置源文件，让yum安装ambari和hdp能找到刚才搭建好的镜像。</p>
+
+<ol>
+<li><p>转到配置源的目录下</p>
+
+<pre><code>cd /etc/yum.repos.d/
+</code></pre></li>
+
+<li><p>新建ambari.repo和HDP.repo文件</p>
+
+<pre><code>touch ambari.repo
+touch HDP.repo
+</code></pre></li>
+
+<li><p>打开ambari.repo文件并写入以下内容</p>
+
+<pre><code>vi ambari.repo
+</code></pre>
+
+<pre><code>#VERSION_NUMBER=2.7.3.0-139
+[ambari-2.7.3.0]
+#json.url = http://public-repo-1.hortonworks.com/HDP/hdp_urlinfo.json
+name=ambari Version - ambari-2.7.3.0
+baseurl=http://172.16.11.63/ambari/ambari/centos7/2.7.3.0-139
+gpgcheck=0
+gpgkey=http://172.16.11.63/ambari/ambari/2.7.3.0-139/RPM-GPG-KEY/RPM-GPG-KEY-Jenkins
+enabled=1
+priority=1
+</code></pre></li>
+
+<li><p>打开ambari.repo文件并写入一下内容</p>
+
+<pre><code>vi HDP.repo
+</code></pre>
+
+<pre><code>#VERSION_NUMBER=3.1.0.0-78
+[HDP-3.1.0.0]
+name=HDP Version - HDP-3.1.0.0
+baseurl=http://172.16.11.63/hdp/HDP/centos7
+gpgcheck=0
+gpgkey=http://172.16.11.63/hdp/HDP/centos7/3.1.0.0-78/RPM-GPG-KEY/RPM-GPG-KEY-Jenkins
+enabled=1
+priority=1
+   
+[HDP-UTILS-1.1.0.22]                                                                   name=HDP-UTILS Version - HDP-UTILS-1.1.0.22                                         baseurl=http://172.16.11.63/hdp/HDP-UTILS                                              gpgcheck=0                                                                             gpgkey=http://172.16.11.63/hdp/HDP-UTILS/centos7/1.1.0.22/RPM-GPG-KEY/RPM-GPG-KEY-Jenkins                                                                               enabled=1                                                                            priority=1 
+</code></pre></li>
+
+<li><p>把ambari.repo和HDP.repo文件分发到data1和data2节点的/etc/yum.repos.d/目录下</p>
+
+<pre><code>scp ambari.repo HDP.repo data1:/etc/yum.repos.d/
+scp ambari.repo HDP.repo data2:/etc/yum.repos.d/
+</code></pre></li>
+</ol>
+
+<p>如果以上命令出现错误，则可以手动将文件复制到data1和data2相应目录。</p>
+
+<h2 id="3-7-安装ambari-server服务">3.7 安装Ambari server服务</h2>
+
+<p>我们在master节点安装Ambari server服务，并且配置该服务。</p>
+
+<ol>
+<li><p>安装Ambari server服务</p>
+
+<pre><code>yum install ambari-server
+</code></pre></li>
+
+<li><p>配置Ambari server服务</p>
+
+<pre><code>ambari-server setup
+</code></pre></li>
+</ol>
+
+<p>然后就行以下一系列的配置：</p>
+
+<pre><code>   Customize user account for ambari-server daemon [y/n] (n)? y
+   Enter user account for ambari-server daemon (root):root		# 用户
+   Adjusting ambari-server permissions and ownership...
+   Checking firewall status...
+   Checking JDK...
+   [1] Oracle JDK 1.8 + Java Cryptography Extension (JCE) Policy Files 8
+   [2] Custom JDK
+   ==============================================================================
+   Enter choice (1): 2		# 选择自己本地的jdk环境
+   WARNING: JDK must be installed on all hosts and JAVA_HOME must be valid on all hosts.
+   WARNING: JCE Policy files are required for configuring Kerberos security. If you plan to use Kerberos,please make sure JCE Unlimited Strength Jurisdiction Policy Files are valid on all hosts.
+   Path to JAVA_HOME: /usr/lib/jvm/jdk1.8.0		# 本地的jdk安装路径
+   Validating JDK on Ambari Server...done.
+   Check JDK version for Ambari Server...
+   JDK version found: 8
+   Minimum JDK version is 8 for Ambari. Skipping to setup different JDK for Ambari Server.
+   Checking GPL software agreement...
+   GPL License for LZO: https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html
+   Enable Ambari Server to download and install GPL Licensed LZO packages [y/n] (n)? y
+   Completing setup...
+   Configuring database...
+   Enter advanced database configuration [y/n] (n)? y
+   Configuring database...
+   ==============================================================================
+   Choose one of the following options:
+   [1] - PostgreSQL (Embedded)
+   [2] - Oracle
+   [3] - MySQL / MariaDB
+   [4] - PostgreSQL
+   [5] - Microsoft SQL Server (Tech Preview)
+   [6] - SQL Anywhere
+   [7] - BDB
+   ==============================================================================
+   Enter choice (1): 3		# 选择安装的Mariadb
+   Hostname (localhost): master		# 配置hostname
+   Port (3306):3306 		# 数据库端口
+   Database name (ambari):ambari  #数据库  
+   Username (ambari): root        #数据库用户名
+   Enter Database Password (bigdata): 		# 密码不显示
+   Re-enter password: 
+   Configuring ambari database...
+   Should ambari use existing default jdbc /usr/share/java/mysql-connector-java.jar [y/n] (y)? y   #自己mysql的jdbc连接驱动存放的位置
+   Configuring remote database connection properties...
+   WARNING: Before starting Ambari Server, you must run the following DDL directly from the database shell to create the schema: /var/lib/ambari-server/resources/Ambari-DDL-MySQL-CREATE.sql		# 此处需注意，启动ambari之前需要执行此句
+   Proceed with configuring remote database connection properties [y/n] (y)? y
+   Extracting system views...
+   ambari-admin-2.7.3.0.139.jar
+   ....
+   Ambari repo file contains latest json url http://public-repo-1.hortonworks.com/HDP/hdp_urlinfo.json, updating stacks repoinfos with it...
+   Adjusting ambari-server permissions and ownership...
+   Ambari Server 'setup' completed successfully.		# 安装成功
+</code></pre>
+
+<ol>
+<li><p>在mariadb中设置ambari数据库</p>
+
+<pre><code>mysql -uroot -proot
+</code></pre></li>
+</ol>
+
+<p>在数据库中输入以下命令</p>
+
+<pre><code>   use ambari;
+   source /var/lib/ambari-server/resources/Ambari-DDL-MySQL-CREATE.sql;
+   show tables;
+</code></pre>
+
+<p>如果show tables出现了许多表则说明执行成功！</p>
+
+<ol>
+<li><p>启动Ambari server服务</p>
+
+<pre><code>ambari-server start 
+</code></pre></li>
+</ol>
+
+<p>出现以下提示则表明开启成功<img src="https://zs-scu.github.io/images/ambari5.PNG" alt="ambari5" /></p>
+
+<p>若失败，则在 查看错误日志，/var/log/ambari-server/ambari-server.log</p>
+
+<p>注意：一般情况是数据库连接错误，可能问题是root没有远程登录权限。进入mariadb添加权限即可。</p>
+
+<pre><code>   mysql -uroot -proot
+   grant all privileges on *.* to root@'%' identified by 'root' with grant option;
+   flush privileges;
+</code></pre>
+
+<p>然后重启数据库服务</p>
+
+<pre><code>   systemctl restart mariadb
+</code></pre>
+
+<h1 id="4-data1与data2节点配置">4. data1与data2节点配置</h1>
+
+<p>data1与data2节点由于是由master克隆过来的，因此不需要过多的配置，只需要在data1和data2节点安装Ambari agent服务。</p>
+
+<pre><code> yum -y install ambari-agent
+</code></pre>
+
+<h1 id="5-安装hadoop环境及服务">5.安装Hadoop环境及服务</h1>
+
+<p>首先启动ambari-server服务，如前面已经成功启动则直接在浏览器中打开：172.16.11.63:8080，登录到ambari的管理界面。根据需要安装不同组件。由于管理界面都是图形化操作，因此此处不在截图操作每个过程，值说需要注意的几个地方</p>
+
+<ol>
+<li><p>进行登录时，用户名和密码都是admin</p></li>
+
+<li><p>选择版本要与刚才安装的一致，即HDP-3.1.0.0.并且使用本地源，本地源地址与HDP.repo文件中的baseurl要一致。此外，因为HDP-3.1-GPL只有几百kb，所以本文中没有配置该源，采用在线源，地址为：</p>
+
+<pre><code>http://public-repo-1.hortonworks.com/HDP-GPL/centos7/3.x/updates/3.1.0.0
+</code></pre></li>
+
+<li><p>Install Options这一步中，Target Hosts就是3个主机名</p>
+
+<pre><code>matser
+data1
+data2
+</code></pre></li>
+</ol>
+
+<p>ssh的私钥是master节点~/.ssh目录下的私钥，即id_rsa（不是id_rsa.pub）</p>
+
+<ol>
+<li>Comfirm Hosts中，如果master节点安装没有问题，data1和data2出错，则可能是ssh配置有问题，返回ssh配置章节重新配置ssh服务。如果全部主机都出错，则需要查看错误日志，具体情况具体分析（比如操作系统和Ambari和HDP版本不匹配，这一步就会一直通不过确认）。</li>
+</ol>
+
+<p><strong>如有其他问题，可以联系我一起讨论！！！</strong></p>
+
+<p>参考资料： <a href="https://blog.csdn.net/Happy_Sunshine_Boy/article/details/86595945">https://blog.csdn.net/Happy_Sunshine_Boy/article/details/86595945</a></p>
+
+              
+            </div>
+          </div>
+          <div id="post-footer" class="post-footer main-content-wrap">
+            
+              
+                
+                
+                  <div class="post-footer-tags">
+                    <span class="text-color-light text-small">TAGGED IN</span><br/>
+                    
+  <a class="tag tag--primary tag--small" href="https://zs-scu.github.io/tags/%E5%A4%A7%E6%95%B0%E6%8D%AE/">大数据</a>
+
+                  </div>
+                
+              
+            
+            <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--disabled">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--disabled">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://zs-scu.github.io/2019/10/ambari%E7%9A%84%E5%AE%89%E8%A3%85/">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://zs-scu.github.io/2019/10/ambari%E7%9A%84%E5%AE%89%E8%A3%85/">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://zs-scu.github.io/2019/10/ambari%E7%9A%84%E5%AE%89%E8%A3%85/">
+              <i class="fa fa-google-plus"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#table-of-contents">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+            
+              
+                <div id="disqus_thread">
+  <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+              
+            
+          </div>
+        </article>
+        <footer id="footer" class="main-content-wrap">
+  <span class="copyrights">
+    &copy; 2019 张 森. All Rights Reserved
+  </span>
+</footer>
+
+      </div>
+      <div id="bottom-bar" class="post-bottom-bar" data-behavior="4">
+        <div class="post-actions-wrap">
+  
+      <nav >
+        <ul class="post-actions post-action-nav">
+          
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--disabled">
+              
+                  <i class="fa fa-angle-left"></i>
+                  <span class="hide-xs hide-sm text-small icon-ml">NEXT</span>
+                </a>
+            </li>
+            <li class="post-action">
+              
+                <a class="post-action-btn btn btn--disabled">
+              
+                  <span class="hide-xs hide-sm text-small icon-mr">PREVIOUS</span>
+                  <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+          
+        </ul>
+      </nav>
+    <ul class="post-actions post-action-share" >
+      
+        <li class="post-action hide-lg hide-md hide-sm">
+          <a class="post-action-btn btn btn--default btn-open-shareoptions" href="#btn-open-shareoptions">
+            <i class="fa fa-share-alt"></i>
+          </a>
+        </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https://zs-scu.github.io/2019/10/ambari%E7%9A%84%E5%AE%89%E8%A3%85/">
+              <i class="fa fa-facebook-official"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=https://zs-scu.github.io/2019/10/ambari%E7%9A%84%E5%AE%89%E8%A3%85/">
+              <i class="fa fa-twitter"></i>
+            </a>
+          </li>
+        
+          <li class="post-action hide-xs">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=https://zs-scu.github.io/2019/10/ambari%E7%9A%84%E5%AE%89%E8%A3%85/">
+              <i class="fa fa-google-plus"></i>
+            </a>
+          </li>
+        
+      
+      
+        <li class="post-action">
+          <a class="post-action-btn btn btn--default" href="#disqus_thread">
+            <i class="fa fa-comment-o"></i>
+          </a>
+        </li>
+      
+      <li class="post-action">
+        
+          <a class="post-action-btn btn btn--default" href="#table-of-contents">
+        
+          <i class="fa fa-list"></i>
+        </a>
+      </li>
+    </ul>
+  
+</div>
+
+      </div>
+      <div id="share-options-bar" class="share-options-bar" data-behavior="4">
+  <i id="btn-close-shareoptions" class="fa fa-close"></i>
+  <ul class="share-options">
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fzs-scu.github.io%2F2019%2F10%2Fambari%25E7%259A%2584%25E5%25AE%2589%25E8%25A3%2585%2F">
+          <i class="fa fa-facebook-official"></i><span>Share on Facebook</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://twitter.com/intent/tweet?text=https%3A%2F%2Fzs-scu.github.io%2F2019%2F10%2Fambari%25E7%259A%2584%25E5%25AE%2589%25E8%25A3%2585%2F">
+          <i class="fa fa-twitter"></i><span>Share on Twitter</span>
+        </a>
+      </li>
+    
+      <li class="share-option">
+        <a class="share-option-btn" target="new" href="https://plus.google.com/share?url=https%3A%2F%2Fzs-scu.github.io%2F2019%2F10%2Fambari%25E7%259A%2584%25E5%25AE%2589%25E8%25A3%2585%2F">
+          <i class="fa fa-google-plus"></i><span>Share on Google&#43;</span>
+        </a>
+      </li>
+    
+  </ul>
+</div>
+<div id="share-options-mask" class="share-options-mask"></div>
+    </div>
+    
+    <div id="about">
+  <div id="about-card">
+    <div id="about-btn-close">
+      <i class="fa fa-remove"></i>
+    </div>
+    
+      <img id="about-card-picture" src="https://www.gravatar.com/avatar/d09dc2d7aa5c467519e8af89f7b3d94c?s=110" alt="Author&#39;s picture" />
+    
+    <h4 id="about-card-name">张 森</h4>
+    
+      <div id="about-card-bio">The very things that in the moment dampen our moods can later be sources of intense gratification and delight.</div>
+    
+    
+      <div id="about-card-job">
+        <i class="fa fa-briefcase"></i>
+        <br/>
+        计算机硕士研究生
+      </div>
+    
+    
+      <div id="about-card-location">
+        <i class="fa fa-map-marker"></i>
+        <br/>
+        成都
+      </div>
+    
+  </div>
+</div>
+
+    
+
+    
+  
+    
+      <div id="cover" style="background-image:url('https://zs-scu.github.io/images/cover.jpg');"></div>
+    
+  
+
+
+    
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.7/js/jquery.fancybox.min.js" integrity="sha256-GEAnjcTqVP+vBp3SSc8bEDQqvWAZMiHyUSIorrWwH50=" crossorigin="anonymous"></script>
+
+
+<script src="https://zs-scu.github.io/js/script-pcw6v3xilnxydl1vddzazdverrnn9ctynvnxgwho987mfyqkuylcb1nlt.min.js"></script>
+
+
+<script lang="javascript">
+window.onload = updateMinWidth;
+window.onresize = updateMinWidth;
+document.getElementById("sidebar").addEventListener("transitionend", updateMinWidth);
+function updateMinWidth() {
+  var sidebar = document.getElementById("sidebar");
+  var main = document.getElementById("main");
+  main.style.minWidth = "";
+  var w1 = getComputedStyle(main).getPropertyValue("min-width");
+  var w2 = getComputedStyle(sidebar).getPropertyValue("width");
+  var w3 = getComputedStyle(sidebar).getPropertyValue("left");
+  main.style.minWidth = `calc(${w1} - ${w2} - ${w3})`;
+}
+</script>
+
+<script>
+$(document).ready(function() {
+  hljs.configure({ classPrefix: '', useBR: false });
+  $('pre.code-highlight > code, pre > code').each(function(i, block) {
+    if (!$(this).hasClass('codeblock')) {
+      $(this).addClass('codeblock');
+    }
+    hljs.highlightBlock(block);
+  });
+});
+</script>
+
+
+  
+    
+      <script>
+        var disqus_config = function () {
+          this.page.url = 'https:\/\/zs-scu.github.io\/2019\/10\/ambari%E7%9A%84%E5%AE%89%E8%A3%85\/';
+          
+            this.page.identifier = '\/2019\/10\/ambari%E7%9A%84%E5%AE%89%E8%A3%85\/'
+          
+        };
+        (function() {
+          
+          
+          if (window.location.hostname == "localhost") {
+            return;
+          }
+          var d = document, s = d.createElement('script');
+          var disqus_shortname = 'hugo-tranquilpeak-theme';
+          s.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+
+          s.setAttribute('data-timestamp', +new Date());
+          (d.head || d.body).appendChild(s);
+        })();
+      </script>
+    
+  
+
+
+
+
+    
+  </body>
+</html>
+
